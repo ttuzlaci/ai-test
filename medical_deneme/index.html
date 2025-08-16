@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Equipment Design Opportunities</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease;
+        }
+        /* Simple line-clamp utility for older browsers if needed, Tailwind 3+ has this built-in */
+        .line-clamp-3 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold leading-tight text-gray-900">
+                Medical Equipment Design Hub
+            </h1>
+            <p class="mt-2 text-sm text-gray-600">Discover and explore innovative design opportunities in the medical field.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <!-- Filter Controls -->
+        <div class="mb-8 flex justify-end">
+            <div>
+                <label for="company-filter" class="block text-sm font-medium text-gray-700">Filter by Company</label>
+                <select id="company-filter" name="company-filter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+        </div>
+
+        <div id="opportunities-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Opportunity cards will be inserted here by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="opportunity-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden modal-overlay opacity-0">
+        <div id="modal-content" class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 transform scale-95 modal-content">
+            <div class="flex justify-between items-start">
+                <h2 id="modal-title" class="text-2xl font-bold text-gray-900"></h2>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="mt-4 space-y-6">
+                <div>
+                    <h3 class="font-semibold text-gray-700">Category</h3>
+                    <p id="modal-category" class="text-gray-600 mt-1"></p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-700">Problem Statement</h3>
+                    <p id="modal-problem" class="text-gray-600 mt-1"></p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-700">Design Considerations</h3>
+                    <ul id="modal-considerations" class="list-disc list-inside text-gray-600 mt-1 space-y-1">
+                        <!-- List items will be inserted here -->
+                    </ul>
+                </div>
+                 <div>
+                    <h3 class="font-semibold text-gray-700">Target User</h3>
+                    <p id="modal-user" class="text-gray-600 mt-1"></p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-700">Market Potential</h3>
+                    <p id="modal-market" class="text-gray-600 mt-1"></p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-700">Potential Companies</h3>
+                    <div id="modal-companies" class="flex flex-wrap gap-2 mt-2">
+                        <!-- Company tags will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Mock Data for Design Opportunities ---
+        const designOpportunities = [
+            {
+                id: 1,
+                title: "Portable, Low-Cost Ventilator",
+                category: "Respiratory Care",
+                problem: "Traditional ventilators are expensive, bulky, and require specialized training. There is a need for a portable, affordable, and easy-to-use ventilator for emergency response and low-resource settings.",
+                considerations: ["Compact and lightweight design.", "Intuitive user interface.", "Use of low-cost components.", "Battery-powered with long operational life.", "Robust construction."],
+                targetUser: "Paramedics, rural clinics, disaster relief organizations.",
+                marketPotential: "High demand in emerging markets and for pandemic preparedness.",
+                companies: ["Medtronic", "Philips Healthcare", "Getinge"]
+            },
+            {
+                id: 2,
+                title: "Smart Inhaler for Asthma Management",
+                category: "Chronic Disease Management",
+                problem: "Poor adherence to medication schedules is a major issue for asthma patients. A 'smart' inhaler could track usage and provide feedback.",
+                considerations: ["Sensor integration for actuation detection.", "Bluetooth connectivity to a mobile app.", "App features: reminders, usage tracking.", "Long battery life.", "Ergonomic design."],
+                targetUser: "Asthma patients (all ages), Pulmonologists.",
+                marketPotential: "Growing market for digital health and personalized medicine.",
+                companies: ["GSK", "AstraZeneca", "Teva Pharmaceutical"]
+            },
+            {
+                id: 3,
+                title: "AI-Powered Diagnostic Imaging Tool",
+                category: "Radiology & Imaging",
+                problem: "Radiologists face increasing workloads. An AI tool could assist by pre-screening images and highlighting areas of interest.",
+                considerations: ["Robust machine learning model.", "Seamless integration with existing PACS software.", "Intuitive visualization of AI findings.", "HIPAA compliance.", "FDA/CE mark regulatory pathway."],
+                targetUser: "Radiologists, hospitals, imaging centers.",
+                marketPotential: "Significant potential to improve efficiency and accuracy in diagnostics.",
+                companies: ["Siemens Healthineers", "GE Healthcare", "Philips Healthcare"]
+            },
+            {
+                id: 4,
+                title: "Non-Invasive Glucose Monitor",
+                category: "Diabetes Care",
+                problem: "Current glucose monitoring methods often require painful finger pricks. A reliable, non-invasive method would improve quality of life.",
+                considerations: ["Exploration of optical or electromagnetic sensing.", "Miniaturization for a wearable form factor.", "High accuracy and reliability.", "Real-time data streaming.", "User-friendly calibration."],
+                targetUser: "Type 1 and Type 2 diabetes patients.",
+                marketPotential: "Enormous, with millions of users seeking a pain-free solution.",
+                companies: ["Abbott", "Dexcom", "Medtronic"]
+            },
+            {
+                id: 5,
+                title: "Robotic-Assisted Surgical System for Remote Areas",
+                category: "Surgical Devices",
+                problem: "Access to specialized surgical care is limited in remote regions. A more compact and affordable robotic system could enable telesurgery.",
+                considerations: ["Reduced footprint and complexity.", "Haptic feedback for the surgeon.", "Low-latency communication protocol.", "Modular design.", "Simplified sterilization."],
+                targetUser: "Surgeons, rural hospitals, military field hospitals.",
+                marketPotential: "Opens up new markets for surgical robotics beyond major urban hospitals.",
+                companies: ["Intuitive Surgical", "Stryker", "Johnson & Johnson"]
+            },
+            {
+                id: 6,
+                title: "Wearable ECG for At-Home Cardiac Monitoring",
+                category: "Cardiology",
+                problem: "Intermittent cardiac arrhythmias are often missed during short hospital visits. Continuous at-home monitoring can improve detection rates.",
+                considerations: ["Comfortable and discreet design.", "Clinical-grade signal quality.", "Automated arrhythmia detection.", "Secure data transmission.", "Long-life battery."],
+                targetUser: "Patients at risk of arrhythmias, cardiologists.",
+                marketPotential: "Strong growth driven by remote patient monitoring.",
+                companies: ["iRhythm", "AliveCor", "Philips Healthcare"]
+            }
+        ];
+
+        // --- DOM Elements ---
+        const grid = document.getElementById('opportunities-grid');
+        const modal = document.getElementById('opportunity-modal');
+        const modalContent = document.getElementById('modal-content');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const companyFilter = document.getElementById('company-filter');
+
+        // --- Functions ---
+
+        /**
+         * Populates the company filter dropdown with unique company names.
+         */
+        function populateCompanyFilter() {
+            const allCompanies = designOpportunities.flatMap(opp => opp.companies);
+            const uniqueCompanies = [...new Set(allCompanies)].sort();
+            
+            companyFilter.innerHTML = '<option value="all">All Companies</option>'; // Reset
+            uniqueCompanies.forEach(company => {
+                const option = document.createElement('option');
+                option.value = company;
+                option.textContent = company;
+                companyFilter.appendChild(option);
+            });
+        }
+
+        /**
+         * Renders the opportunity cards on the main page, optionally filtered by company.
+         * @param {string} [filter='all'] - The company to filter by. 'all' shows all opportunities.
+         */
+        function displayOpportunities(filter = 'all') {
+            grid.innerHTML = ''; // Clear existing content
+            
+            const filteredOpps = filter === 'all'
+                ? designOpportunities
+                : designOpportunities.filter(opp => opp.companies.includes(filter));
+
+            if (filteredOpps.length === 0) {
+                grid.innerHTML = `<p class="text-gray-500 col-span-full text-center">No opportunities found for this company.</p>`;
+                return;
+            }
+
+            filteredOpps.forEach(opp => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 flex flex-col';
+                card.innerHTML = `
+                    <div class="p-6 flex-grow">
+                        <h3 class="text-xs font-semibold text-indigo-600 uppercase tracking-wide">${opp.category}</h3>
+                        <h2 class="mt-2 text-xl font-bold text-gray-900">${opp.title}</h2>
+                        <p class="mt-3 text-base text-gray-500 line-clamp-3">${opp.problem}</p>
+                    </div>
+                    <div class="p-6 bg-gray-50">
+                        <button data-id="${opp.id}" class="view-details-btn w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300">
+                            View Details
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        /**
+         * Populates and shows the modal with details of a specific opportunity.
+         * @param {number} id - The ID of the opportunity to display.
+         */
+        function showModal(id) {
+            const opportunity = designOpportunities.find(opp => opp.id === id);
+            if (!opportunity) return;
+
+            // Populate modal content
+            document.getElementById('modal-title').textContent = opportunity.title;
+            document.getElementById('modal-category').textContent = opportunity.category;
+            document.getElementById('modal-problem').textContent = opportunity.problem;
+            document.getElementById('modal-user').textContent = opportunity.targetUser;
+            document.getElementById('modal-market').textContent = opportunity.marketPotential;
+
+            const considerationsList = document.getElementById('modal-considerations');
+            considerationsList.innerHTML = '';
+            opportunity.considerations.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                considerationsList.appendChild(li);
+            });
+
+            const companiesContainer = document.getElementById('modal-companies');
+            companiesContainer.innerHTML = '';
+            if (opportunity.companies && opportunity.companies.length > 0) {
+                opportunity.companies.forEach(company => {
+                    const companyTag = document.createElement('span');
+                    companyTag.className = 'bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-1 rounded-full';
+                    companyTag.textContent = company;
+                    companiesContainer.appendChild(companyTag);
+                });
+            }
+
+            // Show the modal with animation
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+            }, 10);
+        }
+
+        /**
+         * Hides the modal with animation.
+         */
+        function hideModal() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // --- Event Listeners ---
+
+        // Filter event
+        companyFilter.addEventListener('change', (e) => {
+            displayOpportunities(e.target.value);
+        });
+
+        // Event delegation for "View Details" buttons
+        grid.addEventListener('click', (e) => {
+            const button = e.target.closest('.view-details-btn');
+            if (button) {
+                const id = parseInt(button.dataset.id);
+                showModal(id);
+            }
+        });
+
+        // Close modal events
+        closeModalBtn.addEventListener('click', hideModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                hideModal();
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                hideModal();
+            }
+        });
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            populateCompanyFilter();
+            displayOpportunities();
+        });
+
+    </script>
+</body>
+</html>
